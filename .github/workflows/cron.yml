@@ -2,8 +2,8 @@ name: Monitor Tokens
 
 on:
   schedule:
-    - cron: "0 * * * *"   # cada hora
-  workflow_dispatch:       # para lanzarlo manualmente
+    - cron: "0 0,12 * * *"   # a las 00:00 y a las 12:00 UTC cada día
+  workflow_dispatch:         # para lanzarlo manualmente
 
 jobs:
   monitor:
