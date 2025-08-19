@@ -1,0 +1,34 @@
+name: Ejecutar script diario
+
+on:
+  schedule:
+    - cron: "0 6 * * *"   # todos los días a las 06:00 UTC (≈ 08:00 en Madrid cuando hay horario de verano)
+  workflow_dispatch:       # te permite lanzarlo manualmente desde la pestaña "Actions"
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Ejecutar script
+        env:
+          API_KEY_COINGECKO: ${{ secrets.API_KEY_COINGECKO }}
+          API_KEY_GEMINI:    ${{ secrets.API_KEY_GEMINI }}
+          EMAIL_ADDRESS:     ${{ secrets.EMAIL_ADDRESS }}
+          EMAIL_PASSWORD:    ${{ secrets.EMAIL_PASSWORD }}
+          # Puedes definir TO_EMAILS como Secret o Variable del repo; o escribirlo fijo aquí:
+          TO_EMAILS:         ${{ vars.TO_EMAILS }}
+          # Ejemplo directo: "correo1@example.com,correo2@example.com"
+        run: python script.py
