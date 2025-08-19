@@ -38,7 +38,7 @@ jobs:
           EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
           TO_EMAILS: ${{ secrets.TO_EMAILS }}
-        run: python monitor.py
+        run: python main.py
 
       # 5. Subir tokens actualizados como artefacto
       - name: Subir tokens actualizados
