@@ -10,13 +10,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # 1. Descargar artefactos previos
+      # 1. Descargar artefactos previos (tokens JSON)
       - name: Descargar tokens guardados
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: solana-data
+          path: .
         continue-on-error: true
 
       # 2. Configurar Python
@@ -39,9 +40,9 @@ jobs:
           TO_EMAILS: ${{ secrets.TO_EMAILS }}
         run: python monitor.py
 
-      # 5. Guardar JSON actualizados como artefacto
+      # 5. Subir tokens actualizados como artefacto
       - name: Subir tokens actualizados
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: solana-data
           path: |
