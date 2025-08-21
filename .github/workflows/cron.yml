@@ -2,8 +2,8 @@ name: Monitor Tokens
 
 on:
   schedule:
-    - cron: "0 0,12 * * *"   # a las 00:00 y a las 12:00 UTC cada día
-  workflow_dispatch:         # para lanzarlo manualmente
+    - cron: "0 0,12 * * *"
+  workflow_dispatch:
 
 jobs:
   monitor:
@@ -12,13 +12,14 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # 1. Descargar artefactos previos (tokens JSON)
-      - name: Descargar tokens guardados
-        uses: actions/download-artifact@v4
+      # 1. Restaurar estado (tokens previos)
+      - name: Restaurar tokens guardados
+        uses: actions/cache@v4
         with:
-          name: solana-data
-          path: .
-        continue-on-error: true
+          path: |
+            solana_tokens.json
+            processed_tokens.json
+          key: solana-data
 
       # 2. Configurar Python
       - name: Set up Python
@@ -40,11 +41,11 @@ jobs:
           TO_EMAILS: ${{ secrets.TO_EMAILS }}
         run: python main.py
 
-      # 5. Subir tokens actualizados como artefacto
-      - name: Subir tokens actualizados
-        uses: actions/upload-artifact@v4
+      # 5. Guardar estado actualizado
+      - name: Guardar tokens actualizados
+        uses: actions/cache@v4
         with:
-          name: solana-data
           path: |
             solana_tokens.json
             processed_tokens.json
+          key: solana-data
