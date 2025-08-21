@@ -28,7 +28,7 @@ HEADERS = {
 }
 
 # Otros parámetros
-GT_SCORE_THRESHOLD = 60.0
+GT_SCORE_THRESHOLD = 80.0
 MAX_TOKENS_PER_CHECK = 100
 
 # --- Configuración de Email ---
