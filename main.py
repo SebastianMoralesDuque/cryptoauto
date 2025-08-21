@@ -72,57 +72,65 @@ def save_processed_tokens():
 def send_email(token_info, ai_analysis):
     """Envía un correo con la info del token a múltiples destinatarios."""
     try:
+        print(f"[DEBUG] Preparando correo para {token_info['id']}...")
+
+        # Crear mensaje
         msg = MIMEMultipart()
         msg['From'] = EMAIL_ADDRESS
         msg['To'] = ", ".join(TO_EMAILS)
-        msg['Subject'] = f"Nuevo Token Potencialmente Interesante: {token_info['attributes']['name']} ({token_info['attributes']['symbol']})"
+        msg['Subject'] = f"Nuevo Token Interesante: {token_info['attributes']['name']} ({token_info['attributes']['symbol']})"
 
-        body = f"""
-        Se ha detectado un nuevo token con un GT Score superior a {GT_SCORE_THRESHOLD}%.
+        # Armar body sin indentación rara
+        body = (
+            f"Se ha detectado un nuevo token con un GT Score superior a {GT_SCORE_THRESHOLD}%.\n\n"
+            f"Información del Token:\n"
+            f"- Nombre: {token_info['attributes']['name']}\n"
+            f"- Símbolo: {token_info['attributes']['symbol']}\n"
+            f"- ID: {token_info['id']}\n"
+            f"- Dirección: {token_info['attributes']['address']}\n"
+            f"- GT Score: {token_info['attributes']['gt_score']}\n"
+            f"- Descripción: {token_info['attributes']['description']}\n"
+            f"- Sitio Web: {token_info['attributes'].get('websites', ['N/A'])[0] if token_info['attributes'].get('websites') else 'N/A'}\n"
+            f"- Twitter: @{token_info['attributes'].get('twitter_handle', 'N/A')}\n\n"
+            f"Análisis de IA:\n{ai_analysis}\n\n"
+            "---\nEste correo fue generado automáticamente por el script de monitoreo."
+        )
 
-        Información del Token:
-        - Nombre: {token_info['attributes']['name']}
-        - Símbolo: {token_info['attributes']['symbol']}
-        - ID: {token_info['id']}
-        - Dirección: {token_info['attributes']['address']}
-        - GT Score: {token_info['attributes']['gt_score']}
-        - Descripción: {token_info['attributes']['description']}
-        - Sitio Web: {token_info['attributes'].get('websites', ['N/A'])[0] if token_info['attributes'].get('websites') else 'N/A'}
-        - Twitter: @{token_info['attributes'].get('twitter_handle', 'N/A')}
-
-        Análisis de IA:
-        {ai_analysis}
-
-        ---
-        Este correo fue generado automáticamente por el script de monitoreo.
-        """
+        print(f"[DEBUG] Cuerpo del correo armado:\n{body[:500]}...\n")  # muestra los primeros 500 caracteres
         msg.attach(MIMEText(body, 'plain', 'utf-8'))
 
+        # Conectar SMTP
+        print(f"[DEBUG] Conectando a SMTP {SMTP_SERVER}:{SMTP_PORT}...")
         server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
         server.starttls()
+        print("[DEBUG] Conexión TLS establecida.")
+
         server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        print("[DEBUG] Autenticación SMTP exitosa.")
+
         text = msg.as_string()
+        print(f"[DEBUG] Longitud del mensaje final: {len(text)} bytes.")
+
         server.sendmail(EMAIL_ADDRESS, TO_EMAILS, text)
         server.quit()
-        print(f"Correo enviado para el token {token_info['id']}")
+        print(f"✅ Correo enviado para el token {token_info['id']}")
     except Exception as e:
-        print(f"Error al enviar correo para {token_info['id']}: {e}")
+        print(f"❌ Error al enviar correo para {token_info['id']}: {e}")
+
 
 def analyze_with_ai(token_info):
-    prompt = f"""
-    Eres un analista de criptomonedas experto. Analiza el siguiente token de criptomoneda y proporciona una evaluación breve, directa y profesional.
+    prompt = (
+        f"Eres un analista de criptomonedas experto. Analiza el siguiente token y da una evaluación breve, directa y profesional.\n\n"
+        f"Información del Token:\n"
+        f"- Nombre: {token_info['attributes']['name']}\n"
+        f"- Símbolo: {token_info['attributes']['symbol']}\n"
+        f"- Descripción: {token_info['attributes']['description']}\n"
+        f"- Sitio Web: {token_info['attributes'].get('websites', ['N/A'])[0] if token_info['attributes'].get('websites') else 'N/A'}\n"
+        f"- Twitter: @{token_info['attributes'].get('twitter_handle', 'N/A')}\n"
+        f"- GT Score: {token_info['attributes']['gt_score']}\n\n"
+        f"Basándote solo en esta información, ¿cuál es tu evaluación general del proyecto?"
+    )
 
-    Información del Token:
-    - Nombre: {token_info['attributes']['name']}
-    - Símbolo: {token_info['attributes']['symbol']}
-    - Descripción: {token_info['attributes']['description']}
-    - Sitio Web: {token_info['attributes'].get('websites', ['N/A'])[0] if token_info['attributes'].get('websites') else 'N/A'}
-    - Twitter: @{token_info['attributes'].get('twitter_handle', 'N/A')}
-    - GT Score: {token_info['attributes']['gt_score']}
-
-    Basándote únicamente en la información proporcionada, ¿cuál es tu evaluación general del proyecto?
-    """
-    
     headers_gemini = {"Content-Type": "application/json"}
     data_gemini = {"contents": [{"parts": [{"text": prompt}]}]}
 
@@ -130,14 +138,14 @@ def analyze_with_ai(token_info):
         print(f"--- Solicitando análisis a Gemini para {token_info['id']} ---")
         response = requests.post(URL_GEMINI, headers=headers_gemini, data=json.dumps(data_gemini))
         response.raise_for_status()
-        
+
         result_data = response.json()
         ai_analysis = result_data['candidates'][0]['content']['parts'][0]['text']
-        print(f"Análisis de Gemini:\n{ai_analysis}\n")
-        
+        print(f"✅ Análisis de Gemini recibido:\n{ai_analysis}\n")
+
         return ai_analysis
     except Exception as e:
-        print(f"Error durante análisis con Gemini: {e}")
+        print(f"❌ Error durante análisis con Gemini: {e}")
         return "Análisis no disponible."
 
 def fetch_new_tokens():
