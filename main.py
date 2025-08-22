@@ -14,11 +14,10 @@ PROCESSED_TOKENS_FILE = "processed_tokens.json"
 
 API_KEY_COINGECKO = os.environ.get("API_KEY_COINGECKO", "")
 API_KEY_GEMINI = os.environ.get("API_KEY_GEMINI", "")
-EMAIL_ADDRESS = os.environ.get("EMAIL_ADDRESS", "")
-EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD", "")
-
-# Lista de destinatarios separados por coma en el ENV
-TO_EMAILS = os.environ.get("TO_EMAILS", "cheviotin200@gmail.com").split(",")
+# Si no encuentra la variable de entorno, usa este como fallback
+EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS", "cheviotin200@gmail.com")
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")  # aquí va tu contraseña o app password
+TO_EMAILS = ["cheviotin200@gmail.com"]  # destinatario fijo
 
 # URLs de las APIs
 URL_COINGECKO = "https://api.coingecko.com/api/v3/onchain/tokens/info_recently_updated"
