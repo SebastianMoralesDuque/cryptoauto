@@ -17,7 +17,7 @@ API_KEY_GEMINI = os.environ.get("API_KEY_GEMINI", "")
 # Si no encuentra la variable de entorno, usa este como fallback
 EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS", "cheviotin200@gmail.com")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")  # aquí va tu contraseña o app password
-TO_EMAILS = ["cheviotin200@gmail.com", "wukufy7@gmail.com"]  # ahora incluye ambos correos
+TO_EMAILS = ["deividmontesss88@gmail.com", "wukufy7@gmail.com"]  # ahora incluye ambos correos
 
 
 # URLs de las APIs
