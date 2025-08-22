@@ -17,7 +17,8 @@ API_KEY_GEMINI = os.environ.get("API_KEY_GEMINI", "")
 # Si no encuentra la variable de entorno, usa este como fallback
 EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS", "cheviotin200@gmail.com")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")  # aquí va tu contraseña o app password
-TO_EMAILS = ["cheviotin200@gmail.com"]  # destinatario fijo
+TO_EMAILS = ["cheviotin200@gmail.com", "wukufy7@gmail.com"]  # ahora incluye ambos correos
+
 
 # URLs de las APIs
 URL_COINGECKO = "https://api.coingecko.com/api/v3/onchain/tokens/info_recently_updated"
@@ -132,6 +133,7 @@ def send_email(token_info, ai_analysis):
         print(f"❌ Error al enviar correo para {token_info['id']}: {e}")
 
 
+# --- Función para análisis de IA ---
 def analyze_with_ai(token_info):
     prompt = (
         f"Eres un analista de criptomonedas experto. Analiza el siguiente token y da una evaluación breve, directa y profesional.\n\n"
@@ -142,6 +144,7 @@ def analyze_with_ai(token_info):
         f"- Sitio Web: {token_info['attributes'].get('websites', ['N/A'])[0] if token_info['attributes'].get('websites') else 'N/A'}\n"
         f"- Twitter: @{token_info['attributes'].get('twitter_handle', 'N/A')}\n"
         f"- GT Score: {token_info['attributes']['gt_score']}\n\n"
+        f"IMPORTANTE: Responde toda tu evaluación en ESPAÑOL.\n"
         f"Basándote solo en esta información, ¿cuál es tu evaluación general del proyecto?"
     )
 
