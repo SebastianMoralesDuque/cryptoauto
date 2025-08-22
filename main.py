@@ -6,6 +6,7 @@ from pathlib import Path
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.header import Header
 
 # --- Configuración desde variables de entorno ---
 JSON_FILE = "solana_tokens.json"
@@ -69,18 +70,19 @@ def save_processed_tokens():
     with open(PROCESSED_TOKENS_FILE, "w", encoding='utf-8') as f:
         json.dump(processed_tokens_data, f, indent=4, ensure_ascii=False)
 
+
 def send_email(token_info, ai_analysis):
-    """Envía un correo con la info del token a múltiples destinatarios."""
     try:
         print(f"[DEBUG] Preparando correo para {token_info['id']}...")
 
-        # Crear mensaje
         msg = MIMEMultipart()
-        msg['From'] = EMAIL_ADDRESS
-        msg['To'] = ", ".join(TO_EMAILS)
-        msg['Subject'] = f"Nuevo Token Interesante: {token_info['attributes']['name']} ({token_info['attributes']['symbol']})"
+        msg['From'] = str(Header(EMAIL_ADDRESS, 'utf-8'))
+        msg['To'] = ", ".join([addr.strip() for addr in TO_EMAILS])
+        msg['Subject'] = str(Header(
+            f"Nuevo Token Interesante: {token_info['attributes']['name']} ({token_info['attributes']['symbol']})",
+            'utf-8'
+        ))
 
-        # Armar body sin indentación rara
         body = (
             f"Se ha detectado un nuevo token con un GT Score superior a {GT_SCORE_THRESHOLD}%.\n\n"
             f"Información del Token:\n"
@@ -96,10 +98,8 @@ def send_email(token_info, ai_analysis):
             "---\nEste correo fue generado automáticamente por el script de monitoreo."
         )
 
-        print(f"[DEBUG] Cuerpo del correo armado:\n{body[:500]}...\n")  # muestra los primeros 500 caracteres
         msg.attach(MIMEText(body, 'plain', 'utf-8'))
 
-        # Conectar SMTP
         print(f"[DEBUG] Conectando a SMTP {SMTP_SERVER}:{SMTP_PORT}...")
         server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
         server.starttls()
@@ -111,11 +111,13 @@ def send_email(token_info, ai_analysis):
         text = msg.as_string()
         print(f"[DEBUG] Longitud del mensaje final: {len(text)} bytes.")
 
-        server.sendmail(EMAIL_ADDRESS, TO_EMAILS, text)
+        # ✅ Enviar como lista de direcciones limpias
+        server.sendmail(EMAIL_ADDRESS, [addr.strip() for addr in TO_EMAILS], text)
         server.quit()
         print(f"✅ Correo enviado para el token {token_info['id']}")
     except Exception as e:
         print(f"❌ Error al enviar correo para {token_info['id']}: {e}")
+
 
 
 def analyze_with_ai(token_info):
