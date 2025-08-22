@@ -100,6 +100,18 @@ def send_email(token_info, ai_analysis):
 
         msg.attach(MIMEText(body, 'plain', 'utf-8'))
 
+        # --- Depuración: mostrar datos antes de enviar ---
+        text = msg.as_string()
+        print("\n[DEBUG] --- RESUMEN DEL CORREO ---")
+        print(f"From: {msg['From']}")
+        print(f"To:   {msg['To']}")
+        print(f"Subject: {msg['Subject']}")
+        print(f"Longitud total: {len(text)} bytes")
+        print("[DEBUG] Primeras 300 chars del cuerpo:\n")
+        print(body[:300])
+        print("\n[DEBUG] ---------------------------\n")
+
+        # --- Conexión SMTP ---
         print(f"[DEBUG] Conectando a SMTP {SMTP_SERVER}:{SMTP_PORT}...")
         server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
         server.starttls()
@@ -108,16 +120,17 @@ def send_email(token_info, ai_analysis):
         server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
         print("[DEBUG] Autenticación SMTP exitosa.")
 
-        text = msg.as_string()
-        print(f"[DEBUG] Longitud del mensaje final: {len(text)} bytes.")
-
-        # ✅ Enviar como lista de direcciones limpias
-        server.sendmail(EMAIL_ADDRESS, [addr.strip() for addr in TO_EMAILS], text)
+        # --- Enviar correo ---
+        server.sendmail(
+            EMAIL_ADDRESS,
+            [addr.strip() for addr in TO_EMAILS],
+            text
+        )
         server.quit()
         print(f"✅ Correo enviado para el token {token_info['id']}")
+
     except Exception as e:
         print(f"❌ Error al enviar correo para {token_info['id']}: {e}")
-
 
 
 def analyze_with_ai(token_info):
