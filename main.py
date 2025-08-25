@@ -8,6 +8,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.header import Header
 
+
 # --- Configuración desde variables de entorno ---
 JSON_FILE = "solana_tokens.json"
 PROCESSED_TOKENS_FILE = "processed_tokens.json"
